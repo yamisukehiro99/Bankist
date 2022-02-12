@@ -88,7 +88,7 @@ const calcDisplayIncome = function(movements) {
   labelSumIn.innerHTML = `${income}$`;
 }
 const calcDisplayOutcome = function(movements) {
-  const outcome = movements.filter(element => element < 0).length != 0 ? movements.movements.filter(element => element < 0).reduce((acc, element) => acc + element) : 0;
+  const outcome = movements.filter(element => element < 0).length != 0 ? movements.filter(element => element < 0).reduce((acc, element) => acc + element) : 0;
   labelSumOut.innerHTML = `${Math.abs(outcome)}$`;
 }
 const calcDisplayInterest = function(account) {
@@ -97,6 +97,7 @@ const calcDisplayInterest = function(account) {
 }
 const calcDisplayBalance = function(movements) {
   const balance = movements.reduce((acc, element) => acc + element);
+  console.log(balance);
   labelBalance.innerHTML = `${balance}$`;
 }
 
