@@ -69,9 +69,10 @@ const createUsernames = function (accs) {
 createUsernames(accounts);
 
 //Displaying Movements
-const displayMovements = function(movements) {
-  containerMovements.innerHTML = ''
-  movements.forEach(function(element, i) {
+const displayMovements = function(movements, sort = false) {
+  containerMovements.innerHTML = '';
+  const mov = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  mov.forEach(function(element, i) {
     let type = (element > 0) ? 'deposit' : 'withdrawal';
     const html = `
     <div class="movements__row">
@@ -92,25 +93,24 @@ const calcDisplayOutcome = function(movements) {
   labelSumOut.innerHTML = `${Math.abs(outcome)}$`;
 }
 const calcDisplayInterest = function(account) {
-  const interest = account.movements.filter(element => element > 0).map(element => (element * account.interestRate) / 100).filter(element => element >= 1).reduce((acc, element) => acc * element);
+  const interest = account.movements.filter(element => element > 0).map(element => (element * account.interestRate) / 100).filter(element => element >= 1).reduce((acc, element) => acc + element);
   labelSumInterest.innerHTML = `${interest}$`;
 }
 const calcDisplayBalance = function(movements) {
   const balance = movements.reduce((acc, element) => acc + element);
-  console.log(balance);
   labelBalance.innerHTML = `${balance}$`;
 }
 
 let currentAccount;
 btnLogin.addEventListener('click', function(e) {
   e.preventDefault()
-  let currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
+  currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
   if(currentAccount?.pin === Number(inputLoginPin.value))
     {
       labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
       containerApp.style.opacity = 100;
       inputLoginUsername.value = inputLoginPin.value = '';
-      displayMovements(currentAccount.movements)
+      displayMovements(currentAccount.movements, false)
       calcDisplayIncome(currentAccount.movements)
       calcDisplayOutcome(currentAccount.movements)
       calcDisplayInterest(currentAccount)
@@ -118,6 +118,66 @@ btnLogin.addEventListener('click', function(e) {
     }
     inputLoginPin.blur()
 })
+
+//Transfer
+btnTransfer.addEventListener('click', function(e) {
+  e.preventDefault()
+  let receivedAccount = accounts.find(acc => acc.username === inputTransferTo.value);
+  const amount = Number(inputTransferAmount.value);
+  if(receivedAccount?.username !== currentAccount.username && amount > 0) {
+    //Current
+    currentAccount.movements.push(-amount)
+    displayMovements(currentAccount.movements, false)
+    calcDisplayIncome(currentAccount.movements)
+    calcDisplayOutcome(currentAccount.movements)
+    calcDisplayInterest(currentAccount)
+    calcDisplayBalance(currentAccount.movements)
+
+    //Receiver
+    receivedAccount.movements.push(amount)
+    inputTransferTo.value = inputTransferAmount.value = ''
+    inputTransferAmount.blur()
+  }
+})
+
+//Deleting Account
+btnClose.addEventListener('click', function(e) {
+  e.preventDefault()
+  let deletedUsername = inputCloseUsername.value
+  let deletedPin = Number(inputClosePin.value)
+  inputCloseUsername.value = inputClosePin.value = ''
+  if(deletedUsername === currentAccount.username && deletedPin === currentAccount.pin) {
+    const index = accounts.findIndex(acc => acc.username === currentAccount.username)
+    accounts.splice(index, 1)
+    containerApp.style.opacity = 0;
+    console.log(accounts);
+  }
+})
+
+//Loan
+btnLoan.addEventListener('click', function(e) {
+  e.preventDefault()
+  const loan = Number(inputLoanAmount.value)
+  if(loan > 0 && currentAccount.movements.some(mov => mov >= loan * 0.1)) {
+    currentAccount.movements.push(loan);
+    displayMovements(currentAccount.movements, false);
+    calcDisplayIncome(currentAccount.movements);
+    calcDisplayOutcome(currentAccount.movements);
+    calcDisplayInterest(currentAccount);
+    calcDisplayBalance(currentAccount.movements);
+  }
+  inputLoanAmount.value = "";
+  inputLoanAmount.blur();
+})
+
+//Sort
+
+let sorted = false
+btnSort.addEventListener('click', function(e) {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
+});
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
