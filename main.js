@@ -86,6 +86,7 @@ const inputTransferAmount = document.querySelector('.form__input--amount');
 const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
+let sorted = false
 //Creating Users
 const createUsernames = function (accs) {
   accs.forEach(function (acc) {
@@ -100,7 +101,6 @@ const displayMovements = function(acc, sort = false) {
   const mov = sort ? acc.movements.slice().sort((a, b) => a - b) : acc.movements;
   mov.forEach(function(element, i) {
     const date = new Date(acc.movementsDates[i])
-    console.log(date);
     const day = `${date.getDay()}`.padStart(2, '0');
     const month = `${date.getMonth() + 1}`.padStart(2, '0');
     const year = date.getFullYear();
@@ -117,6 +117,7 @@ const displayMovements = function(acc, sort = false) {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   })
 }
+
 //calcSummaries
 const calcDisplayIncome = function(movements) {
   const income = movements.filter(element => element > 0).reduce((acc, element) => element + acc);
@@ -213,10 +214,10 @@ btnLoan.addEventListener('click', function(e) {
 
 //Sort
 
-let sorted = false
+
 btnSort.addEventListener('click', function(e) {
   e.preventDefault();
-  displayMovements(currentAccount.movements, !sorted);
+  displayMovements(currentAccount, !sorted);
   sorted = !sorted;
 });
 
