@@ -168,26 +168,30 @@ btnTransfer.addEventListener('click', function(e) {
   const amount = Number(inputTransferAmount.value);
   if(receivedAccount?.username !== currentAccount.username && amount > 0) {
     //Current
-    currentAccount.movements.push(-amount)
-    displayMovements(currentAccount.movements, false)
-    calcDisplayIncome(currentAccount.movements)
-    calcDisplayOutcome(currentAccount.movements)
-    calcDisplayInterest(currentAccount)
-    calcDisplayBalance(currentAccount.movements)
+    currentAccount.movements.push(-amount);
+    currentAccount.movementsDates.push(new Date());
+    receivedAccount.movementsDates.push(new Date());
+    displayMovements(currentAccount, false);
+    calcDisplayIncome(currentAccount.movements);
+    calcDisplayOutcome(currentAccount.movements);
+    calcDisplayInterest(currentAccount);
+    calcDisplayBalance(currentAccount.movements);
 
     //Receiver
-    receivedAccount.movements.push(amount)
-    inputTransferTo.value = inputTransferAmount.value = ''
-    inputTransferAmount.blur()
+    receivedAccount.movements.push(amount);
+    inputTransferTo.value = inputTransferAmount.value = '';
+    inputTransferAmount.blur();
+
+    
   }
 })
 
 //Deleting Account
 btnClose.addEventListener('click', function(e) {
   e.preventDefault()
-  let deletedUsername = inputCloseUsername.value
-  let deletedPin = Number(inputClosePin.value)
-  inputCloseUsername.value = inputClosePin.value = ''
+  let deletedUsername = inputCloseUsername.value;
+  let deletedPin = Number(inputClosePin.value);
+  inputCloseUsername.value = inputClosePin.value = '';
   if(deletedUsername === currentAccount.username && deletedPin === currentAccount.pin) {
     const index = accounts.findIndex(acc => acc.username === currentAccount.username)
     accounts.splice(index, 1)
@@ -202,11 +206,13 @@ btnLoan.addEventListener('click', function(e) {
   const loan = Number(inputLoanAmount.value)
   if(loan > 0 && currentAccount.movements.some(mov => mov >= loan * 0.1)) {
     currentAccount.movements.push(loan);
-    displayMovements(currentAccount.movements, false);
+    currentAccount.movementsDates.push(new Date());
+    displayMovements(currentAccount, false);
     calcDisplayIncome(currentAccount.movements);
     calcDisplayOutcome(currentAccount.movements);
     calcDisplayInterest(currentAccount);
     calcDisplayBalance(currentAccount.movements);
+
   }
   inputLoanAmount.value = "";
   inputLoanAmount.blur();
