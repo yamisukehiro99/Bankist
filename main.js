@@ -95,14 +95,22 @@ const createUsernames = function (accs) {
 createUsernames(accounts);
 
 //Displaying Movements
-const displayMovements = function(movements, sort = false) {
+const displayMovements = function(acc, sort = false) {
   containerMovements.innerHTML = '';
-  const mov = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  const mov = sort ? acc.movements.slice().sort((a, b) => a - b) : acc.movements;
   mov.forEach(function(element, i) {
+    const date = new Date(acc.movementsDates[i])
+    console.log(date);
+    const day = `${date.getDay()}`.padStart(2, '0');
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const year = date.getFullYear();
+    const displayDate = `${day}/${month}/${year}`;
+    
     let type = (element > 0) ? 'deposit' : 'withdrawal';
     const html = `
     <div class="movements__row">
       <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
+      <div class="movements__date">${displayDate}</div>
       <div class="movements__value">${element}</div>
     </div>
     `;
@@ -128,6 +136,13 @@ const calcDisplayBalance = function(movements) {
 }
 
 let currentAccount;
+const now = new Date();
+const day = `${now.getDay()}`.padStart(2, '0');
+const month = `${now.getMonth() + 1}`.padStart(2, '0');
+const year = now.getFullYear();
+const hour = now.getHours();
+const min = now.getMinutes();
+labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
 btnLogin.addEventListener('click', function(e) {
   e.preventDefault()
   currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
@@ -136,7 +151,7 @@ btnLogin.addEventListener('click', function(e) {
       labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
       containerApp.style.opacity = 100;
       inputLoginUsername.value = inputLoginPin.value = '';
-      displayMovements(currentAccount.movements, false)
+      displayMovements(currentAccount, false)
       calcDisplayIncome(currentAccount.movements)
       calcDisplayOutcome(currentAccount.movements)
       calcDisplayInterest(currentAccount)
