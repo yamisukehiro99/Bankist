@@ -86,7 +86,8 @@ const inputTransferAmount = document.querySelector('.form__input--amount');
 const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
-let sorted = false
+let sorted = false;
+const locale = navigator.language;
 //Creating Users
 const createUsernames = function (accs) {
   accs.forEach(function (acc) {
@@ -101,10 +102,7 @@ const displayMovements = function(acc, sort = false) {
   const mov = sort ? acc.movements.slice().sort((a, b) => a - b) : acc.movements;
   mov.forEach(function(element, i) {
     const date = new Date(acc.movementsDates[i])
-    const day = `${date.getDay()}`.padStart(2, '0');
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    const year = date.getFullYear();
-    const displayDate = `${day}/${month}/${year}`;
+    const displayDate = new Intl.DateTimeFormat(locale).format(date);
     
     let type = (element > 0) ? 'deposit' : 'withdrawal';
     const html = `
@@ -138,12 +136,8 @@ const calcDisplayBalance = function(movements) {
 
 let currentAccount;
 const now = new Date();
-const day = `${now.getDay()}`.padStart(2, '0');
-const month = `${now.getMonth() + 1}`.padStart(2, '0');
-const year = now.getFullYear();
-const hour = now.getHours();
-const min = now.getMinutes();
-labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
+const date = Intl.DateTimeFormat(locale).format(now);
+labelDate.textContent = date;
 btnLogin.addEventListener('click', function(e) {
   e.preventDefault()
   currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
@@ -157,6 +151,9 @@ btnLogin.addEventListener('click', function(e) {
       calcDisplayOutcome(currentAccount.movements)
       calcDisplayInterest(currentAccount)
       calcDisplayBalance(currentAccount.movements)
+      const now = new Date();
+      labelDate.textContent = new Intl.DateTimeFormat(currentAccount.locale).format(now);
+      console.log(currentAccount.locale);
     }
     inputLoginPin.blur()
 })
