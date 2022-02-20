@@ -134,7 +134,7 @@ const calcDisplayBalance = function(movements) {
   labelBalance.innerHTML = `${balance}$`;
 }
 
-let currentAccount;
+let currentAccount, timer;
 const now = new Date();
 const date = Intl.DateTimeFormat(locale).format(now);
 labelDate.textContent = date;
@@ -143,6 +143,8 @@ btnLogin.addEventListener('click', function(e) {
   currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
   if(currentAccount?.pin === Number(inputLoginPin.value))
     {
+      if(timer) clearInterval(timer);
+      timer = startLogOutTimer();
       labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
       containerApp.style.opacity = 100;
       inputLoginUsername.value = inputLoginPin.value = '';
@@ -153,7 +155,6 @@ btnLogin.addEventListener('click', function(e) {
       calcDisplayBalance(currentAccount.movements)
       const now = new Date();
       labelDate.textContent = new Intl.DateTimeFormat(currentAccount.locale).format(now);
-      console.log(currentAccount.locale);
     }
     inputLoginPin.blur()
 })
@@ -179,6 +180,9 @@ btnTransfer.addEventListener('click', function(e) {
     inputTransferTo.value = inputTransferAmount.value = '';
     inputTransferAmount.blur();
 
+    clearInterval(timer);
+    timer = startLogOutTimer();
+
     
   }
 })
@@ -193,7 +197,6 @@ btnClose.addEventListener('click', function(e) {
     const index = accounts.findIndex(acc => acc.username === currentAccount.username)
     accounts.splice(index, 1)
     containerApp.style.opacity = 0;
-    console.log(accounts);
   }
 })
 
@@ -213,6 +216,8 @@ btnLoan.addEventListener('click', function(e) {
   }
   inputLoanAmount.value = "";
   inputLoanAmount.blur();
+  clearInterval(timer);
+  timer = startLogOutTimer();
 })
 
 //Sort
@@ -222,16 +227,26 @@ btnSort.addEventListener('click', function(e) {
   e.preventDefault();
   displayMovements(currentAccount, !sorted);
   sorted = !sorted;
+  clearInterval(timer);
+  timer = startLogOutTimer();
 });
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// LECTURES
-let mov = [5000, 3400, -150, -790, -3210, -1000, 8500, -30]
+//Reset timer
 
-const currencies = new Map([
-  ['USD', 'United States dollar'],
-  ['EUR', 'Euro'],
-  ['GBP', 'Pound sterling'],
-]);
-/////////////////////////////////////////////////////
+
+const startLogOutTimer = function() {
+  let time = 600, min, sec;
+  
+  const logoutSession = setInterval(function() {
+    min = String(Math.trunc(time / 60)).padStart(2, '0');
+    sec =  String(Math.trunc(time % 60)).padStart(2, '0');
+    labelTimer.textContent = `${min}:${sec}`;
+    if(time === 0) {
+      clearInterval(logoutSession);
+      labelWelcome.textContent = 'Log in to get started';
+      containerApp.style.opacity = 0;
+    }
+    time--;
+  }, 1000);
+  return logoutSession;
+};
